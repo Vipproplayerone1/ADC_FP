@@ -1,0 +1,6 @@
+query,reference_answer,split
+What is gradient descent?,"Gradient descent is an optimization algorithm that minimizes a loss function by iteratively updating model parameters in the direction opposite to the gradient. It takes steps of size proportional to the learning rate until convergence.",test
+How does the learning rate affect gradient descent?,"The learning rate controls the step size taken at each iteration of gradient descent. Too large a learning rate causes divergence while too small a rate causes very slow convergence.",test
+What is the sigmoid function?,"The sigmoid function maps any real value to a number between 0 and 1 which can be interpreted as a probability. It is defined as sigmoid(z) = 1 / (1 + exp(-z)) and is well suited for binary classification.",test
+What is an activation function in a neural network?,"An activation function is a non-linear function applied to each neuron's output. Common choices are ReLU, sigmoid, and hyperbolic tangent. ReLU is the most popular for hidden layers because it is cheap to compute and does not saturate for positive inputs.",test
+What is overfitting?,"Overfitting occurs when a model learns the training data too closely including its noise and random fluctuations. As a consequence the model performs well on training data but poorly on new unseen data.",test

@@ -1,0 +1,6 @@
+query,relevant_file,relevant_page,split
+What is gradient descent and what does it minimize?,Lecture_03_Gradient_Descent.pdf,5,test
+How does the learning rate affect gradient descent convergence?,Lecture_03_Gradient_Descent.pdf,4,test
+What is the sigmoid function used for in logistic regression?,Lecture_04_Logistic_Regression.pdf,2,test
+What is an activation function in a neural network and why is it needed?,Lecture_05_Neural_Networks.pdf,9,test
+What is overfitting and how can it be detected?,Lecture_06_Model_Evaluation.pdf,7,test
