@@ -1,6 +1,6 @@
 # Track 3 Grading Anchors — Evidence Map
 
-This document maps each row of the **Track 3 Requirement Mapping** table in `README_track3.md` to the concrete code, data, or output that satisfies it.
+This document maps each row of the **Track 3 Requirement Mapping** table in `README.md` to the concrete code, data, or output that satisfies it.
 
 | # | Requirement | Where it is satisfied |
 |---|---|---|
