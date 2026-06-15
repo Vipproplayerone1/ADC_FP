@@ -4,7 +4,7 @@ import requests
 
 
 class APIClient:
-    def __init__(self, base_url: str, timeout: int = 120) -> None:
+    def __init__(self, base_url: str, timeout: int = 600) -> None:
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
 
@@ -19,10 +19,17 @@ class APIClient:
         r.raise_for_status()
         return r.json()
 
-    def chat(self, query: str, top_k: int | None = None) -> dict[str, Any]:
+    def chat(
+        self,
+        query: str,
+        top_k: int | None = None,
+        history: list[dict[str, str]] | None = None,
+    ) -> dict[str, Any]:
         body: dict[str, Any] = {"query": query}
         if top_k is not None:
             body["top_k"] = top_k
+        if history:
+            body["history"] = history
         r = requests.post(f"{self.base_url}/chat", json=body, timeout=self.timeout)
         r.raise_for_status()
         return r.json()

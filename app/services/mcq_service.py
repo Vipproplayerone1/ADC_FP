@@ -14,7 +14,7 @@ logger = get_logger(__name__)
 
 
 def _build_prompt(topic: str, num_questions: int, difficulty: str, hits: list[Hit]) -> str:
-    template = load_prompt("mcq_prompt")
+    template = load_prompt("mcq_user")
     return template.format(
         num_questions=num_questions,
         topic=topic,
@@ -59,7 +59,8 @@ def generate_mcqs(
 ) -> list[MCQItem]:
     hits = retrieve(topic, top_k)
     prompt = _build_prompt(topic, num_questions, difficulty, hits)
-    raw = OpenAIClient.complete(prompt, json_mode=True, temperature=0.4)
+    system = load_prompt("mcq_system")
+    raw = OpenAIClient.complete(prompt, json_mode=True, temperature=0.4, system=system)
     items = _parse_items(raw, hits)
     if items:
         return items[:num_questions]
@@ -67,6 +68,6 @@ def generate_mcqs(
     # One retry with a stricter suffix if the first response was unparseable.
     logger.info("Retrying MCQ generation with stricter JSON instruction.")
     stricter = prompt + "\n\nReturn ONLY valid JSON. Do not include any prose."
-    raw = OpenAIClient.complete(stricter, json_mode=True, temperature=0.2)
+    raw = OpenAIClient.complete(stricter, json_mode=True, temperature=0.2, system=system)
     items = _parse_items(raw, hits)
     return items[:num_questions]

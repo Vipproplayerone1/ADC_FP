@@ -93,18 +93,27 @@ def _render_chip_row_into(chips: list[str], target_key: str, key_prefix: str) ->
             )
 
 
+def _history_payload() -> list[dict[str, str]]:
+    history: list[dict[str, str]] = []
+    for turn in st.session_state["chat_history"]:
+        history.append({"role": "user", "content": turn["query"]})
+        history.append({"role": "assistant", "content": turn["answer"]})
+    return history
+
+
 def _handle_chat(api: APIClient, prompt: str) -> None:
     with st.chat_message("user"):
         st.markdown(prompt)
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                resp = api.chat(prompt)
+                resp = api.chat(prompt, history=_history_payload())
             except Exception as exc:
                 st.error(f"Chat failed: {exc}")
                 return
         answer = resp.get("answer", "")
         sources = resp.get("sources", [])
+        rewritten = resp.get("rewritten_query")
         st.markdown(
             f'<div class="plr-answer">{html.escape(answer).replace(chr(10), "<br>")}</div>',
             unsafe_allow_html=True,
@@ -112,6 +121,8 @@ def _handle_chat(api: APIClient, prompt: str) -> None:
         _render_sources(sources)
         with st.expander("How this answer was built", expanded=False):
             _render_flow(prompt, len(sources))
+            if rewritten and rewritten != prompt:
+                st.caption(f"Retrieval query (rewritten from history): {rewritten}")
         st.session_state["chat_history"].append(
             {"query": prompt, "answer": answer, "sources": sources}
         )

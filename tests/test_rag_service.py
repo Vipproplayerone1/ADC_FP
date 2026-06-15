@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from app.schemas import ChatTurn
 from app.services.embedding_service import Embedder
 from app.services.rag_service import answer_question, summarize
 from app.services.text_chunker import Chunk
@@ -29,7 +30,7 @@ def test_answer_question_returns_sources_with_file_and_page() -> None:
         "app.services.rag_service.OpenAIClient.complete",
         return_value="Gradient descent reduces the loss by following the negative gradient.",
     ):
-        answer, sources = answer_question("What is gradient descent?")
+        answer, sources, _ = answer_question("What is gradient descent?")
     assert "gradient" in answer.lower()
     assert sources
     assert sources[0].file_name == "L.pdf"
@@ -58,7 +59,57 @@ def test_empty_store_yields_refusal_pathway() -> None:
         "app.services.rag_service.OpenAIClient.complete",
         side_effect=fake_complete,
     ):
-        answer, sources = answer_question("Anything?")
+        answer, sources, _ = answer_question("Anything?")
     assert sources == []
     assert "no relevant context" in captured["prompt"].lower()
     assert "could not find enough information" in answer.lower()
+
+
+_HISTORY = [
+    ChatTurn(role="user", content="What is gradient descent?"),
+    ChatTurn(role="assistant", content="It minimizes a loss by following the negative gradient."),
+]
+
+
+def test_no_history_makes_single_llm_call() -> None:
+    _seed_store()
+    with patch(
+        "app.services.rag_service.OpenAIClient.complete",
+        return_value="Some answer.",
+    ) as mock_complete:
+        answer_question("What is gradient descent?")
+    assert mock_complete.call_count == 1
+
+
+def test_history_rewrites_query_and_retrieves_with_rewrite() -> None:
+    calls: list[dict] = []
+
+    def fake_complete(prompt: str, **kwargs):
+        calls.append({"prompt": prompt, **kwargs})
+        if len(calls) == 1:
+            return "examples of gradient descent"
+        return "Here is an example."
+
+    with patch(
+        "app.services.rag_service.OpenAIClient.complete", side_effect=fake_complete
+    ), patch("app.services.rag_service.retrieve", return_value=[]) as mock_retrieve:
+        answer, sources, rewritten = answer_question(
+            "give an example of it", history=_HISTORY
+        )
+    assert len(calls) == 2
+    assert "self-contained" in calls[0]["system"]
+    assert mock_retrieve.call_args[0][0] == "examples of gradient descent"
+    assert rewritten == "examples of gradient descent"
+    # The qa prompt must still contain the original question, not the rewrite.
+    assert "give an example of it" in calls[1]["prompt"]
+
+
+def test_empty_rewrite_falls_back_to_original_question() -> None:
+    def fake_complete(prompt: str, **kwargs):
+        return "" if "self-contained" in (kwargs.get("system") or "") else "Answer."
+
+    with patch(
+        "app.services.rag_service.OpenAIClient.complete", side_effect=fake_complete
+    ), patch("app.services.rag_service.retrieve", return_value=[]) as mock_retrieve:
+        answer_question("give an example of it", history=_HISTORY)
+    assert mock_retrieve.call_args[0][0] == "give an example of it"

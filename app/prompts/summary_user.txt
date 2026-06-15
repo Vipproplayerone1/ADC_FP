@@ -1,0 +1,9 @@
+Summary request:
+{user_question}
+
+Course excerpts (your only source of truth):
+{retrieved_context}
+
+Request (repeated): {user_question}
+
+Write the summary now, following the required structure. Cite every bullet as [<file_name>, p.<page_number>].

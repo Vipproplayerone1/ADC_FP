@@ -1,0 +1,7 @@
+Create {num_questions} multiple-choice questions about "{topic}".
+Difficulty: {difficulty}
+
+Course excerpts (your only source of truth):
+{retrieved_context}
+
+Generate the questions now. Return ONLY the JSON object in the required schema.

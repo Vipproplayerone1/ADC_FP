@@ -1,0 +1,9 @@
+Question:
+{user_question}
+
+Course excerpts (your only source of truth):
+{retrieved_context}
+
+Question (repeated): {user_question}
+
+Answer the question now, following all rules. Cite as [<file_name>, p.<page_number>].

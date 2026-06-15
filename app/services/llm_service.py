@@ -25,11 +25,20 @@ class OpenAIClient:
     """
 
     @staticmethod
-    def complete(prompt: str, json_mode: bool = False, temperature: float = 0.2) -> str:
+    def complete(
+        prompt: str,
+        json_mode: bool = False,
+        temperature: float = 0.2,
+        system: str | None = None,
+    ) -> str:
         s = get_settings()
+        messages: list[dict] = []
+        if system:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
         kwargs: dict = {
             "model": s.active_llm_model,
-            "messages": [{"role": "user", "content": prompt}],
+            "messages": messages,
             "temperature": temperature,
         }
         if json_mode:

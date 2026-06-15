@@ -1,0 +1,7 @@
+Conversation history:
+{conversation_history}
+
+Latest question:
+{latest_question}
+
+Rewrite the latest question as a self-contained search query.
